@@ -8,6 +8,10 @@ import {
   Text,
   useColorScheme,
   View,
+  Button,
+  Pressable,
+  Switch,
+  Modal
 } from 'react-native';
 import {
   QueryClient,
@@ -18,7 +22,8 @@ import {
 import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
-
+import Icon from 'react-native-vector-icons/Feather';
+//import Dropdown from 'react-native-dropdown-picker';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -53,13 +58,23 @@ function Section({children, title}: SectionProps): JSX.Element {
 type ToDoViewProps = {
   todo: ToDo
 }
-
 const ToDoView = ({ todo }: ToDoViewProps) => {
   
+
   return (
-    <View style={{padding: 5, borderRadius: 5, backgroundColor: "white", shadowOpacity: 0.3, shadowColor: "black", shadowRadius: 10, width: "100%"}}>
-      <Text style={{color: "black"}}>{todo.title}</Text>
-      <Text style={{color: "black",fontStyle: "italic"}}>by User {userIdMap[todo.userId]}</Text>
+    <View style={{padding: 5, borderRadius: 5, backgroundColor: "white", shadowOpacity: 0.3, shadowColor: "black", shadowRadius: 20, flex: 1, flexDirection: "column", elevation:5}}>
+      <Text style={{color: "black", fontWeight: "600"}}>{todo.title}</Text>
+      <View style={{flexDirection: "row", justifyContent:"space-between", paddingTop: 5}}>
+        <View style={{flexDirection: "row", alignItems:"center"}}>
+          <Icon style={{color: "black", paddingEnd: 5}} name="user"/>
+          <Text style={{color: "black", fontStyle: "italic"}}>{userIdMap[todo.userId]}</Text>
+        </View>
+        <View style={{flexDirection: "row", alignItems:"center"}}>
+          <Icon style={{color: "black", paddingEnd: 5}} name={todo.completed? "check-circle":"x"}/>
+          
+          <Text style={{color: "black", fontStyle: "italic"}}>{ todo.completed? "Complete":"Uncomplete"}</Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -119,15 +134,14 @@ const Users = () =>{
     userIdMap[user.id] = user.username
   });
 
-  console.log(userIdMap)
+ 
 
   return(
-    <Text></Text>
+    <View/>
   );
 }
 
-
-const ToDos = () => {
+const ToDos = (props) => {
   const { isLoading, error, data } = useQuery({
     queryKey: ['todos'],
     queryFn: (): Promise<ToDo[]> =>
@@ -142,9 +156,15 @@ const ToDos = () => {
 
   if (!data) return <Text>Data was undefined :(</Text>
 
+  console.log(props.filter)
+
+  const filteredData = props.filter === null
+    ? data
+    : data.filter((item) => item.completed === props.filter);
+
   return (
     <View style={{flexDirection: "column",  flex: 1, gap: 10 }}>
-      {data.map((todo: ToDo) => (<ToDoView todo={todo} />))}
+      {filteredData.map((todo: ToDo) => (<ToDoView todo={todo} />))}
     </View>
   );
 }
@@ -153,11 +173,21 @@ const ToDos = () => {
 const queryClient = new QueryClient()
 
 function App(): JSX.Element {
+  const [filterVisibility, setFilterVisibility] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<boolean | null>(null);
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  /*const statusFilter = [{
+    value: "All",
+  },{
+    value: "Completed",
+  },{
+    value: "Uncompleted"
+  }]*/
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -174,8 +204,63 @@ function App(): JSX.Element {
               backgroundColor: isDarkMode ? Colors.black : Colors.white,
             }}>
             <Section title="ToDos">
-              <ToDos />
-              <Users />
+              <View style={{flexDirection:"column"}}>
+              {/*<Icon.Button name="filter" style={{backgroundColor: isDarkMode ? Colors.light : Colors.black}} color={isDarkMode ? Colors.black : Colors.white} onPress={() => {
+                    setFilterVisibility(!filterVisibility)
+                    console.log(filterVisibility)
+                  }}>
+                    Filter
+                  </Icon.Button>
+                  <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={filterVisibility}
+                    onRequestClose={() => {
+                      setFilterVisibility(!filterVisibility);
+                    }}
+                  >
+                    <View style={styles.centeredView}>
+                      <View style={styles.modalView}>
+                        <Text style={{color: "black"}}>Filter</Text>
+                        <View style={{flexDirection: "row"}}>
+                          <Text style={{color: "black"}}>Completion status</Text>
+                          <Dropdown value={} items={statusFilter}/>
+                        </View>
+                        <Pressable onPress={() => setFilterVisibility(!filterVisibility)}>
+                          <Text style={{color: "black"}}>Close</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  </Modal>*/}
+                <View style={{flexDirection: "row", paddingBottom:10}}>
+                  <Icon.Button name="filter" style={{backgroundColor: isDarkMode ? Colors.light : Colors.black}} color={isDarkMode ? Colors.black : Colors.white} onPress={() => {
+                    setFilterVisibility(!filterVisibility)
+                    console.log(filterVisibility)
+                  }}>
+                    Filter
+                  </Icon.Button>
+                  {filterVisibility && <View style={{flexDirection:"row", paddingStart:10}}>
+                    <Pressable style={[styles.filterButton, {backgroundColor: filterStatus === null ? Colors.dark:"black"}]} onPress={() => setFilterStatus(null)}>
+                      <Text>
+                        All
+                      </Text>
+                    </Pressable>
+                    <Pressable  style={[styles.filterButton, {backgroundColor: filterStatus === true ? Colors.dark:"black"}]} onPress={() => setFilterStatus(true)}>
+                      <Text>
+                        Complete
+                      </Text>
+                    </Pressable>
+                    <Pressable  style={[styles.filterButton, {backgroundColor: filterStatus === false ? Colors.dark:"black"}]} onPress={() => setFilterStatus(false)}>
+                      <Text>
+                        Uncomplete
+                      </Text>
+                    </Pressable>
+                </View>}
+                </View>
+                <ToDos filter={filterStatus}/>
+                <Users />
+              </View>
+              
             </Section>
           </View>
         </ScrollView>
@@ -201,6 +286,37 @@ const styles = StyleSheet.create({
   highlight: {
     fontWeight: '700',
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  filterButton: {
+    padding: 5,
+    margin: 5,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    borderColor: "white",
+    borderRadius: 5
+  },
+  filterText:{
+
+  }
 });
 
 export default App;

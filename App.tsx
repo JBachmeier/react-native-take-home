@@ -174,6 +174,8 @@ const queryClient = new QueryClient()
 
 function App(): JSX.Element {
   const [filterVisibility, setFilterVisibility] = useState(false);
+
+  // bool und null, um status complete, uncomplete und beide auswählen zu können.
   const [filterStatus, setFilterStatus] = useState<boolean | null>(null);
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -184,9 +186,9 @@ function App(): JSX.Element {
   /*const statusFilter = [{
     value: "All",
   },{
-    value: "Completed",
+    value: "Complete",
   },{
-    value: "Uncompleted"
+    value: "Uncomplete"
   }]*/
 
   return (
@@ -233,25 +235,28 @@ function App(): JSX.Element {
                     </View>
                   </Modal>*/}
                 <View style={{flexDirection: "row", paddingBottom:10}}>
-                  <Icon.Button name="filter" style={{backgroundColor: isDarkMode ? Colors.light : Colors.black}} color={isDarkMode ? Colors.black : Colors.white} onPress={() => {
+                  <Pressable style={{backgroundColor: isDarkMode ? Colors.light : Colors.black, borderRadius: 10}} onPress={() => {
                     setFilterVisibility(!filterVisibility)
                     console.log(filterVisibility)
                   }}>
-                    Filter
-                  </Icon.Button>
+                    <View style={{flexDirection:"row", alignContent:"center", justifyContent:"center", alignItems: "center", height: 40, padding: 5}}>
+                      <Icon style={{color: isDarkMode ? Colors.black : Colors.white, paddingEnd: 5}} name={"filter"}/>
+                      <Text style={{color: isDarkMode ? Colors.black : Colors.white}}>Filter</Text>
+                    </View>
+                  </Pressable>
                   {filterVisibility && <View style={{flexDirection:"row", paddingStart:10}}>
                     <Pressable style={[styles.filterButton, {backgroundColor: filterStatus === null ? Colors.dark:"black"}]} onPress={() => setFilterStatus(null)}>
-                      <Text>
+                      <Text style={{color: "white"}}>
                         All
                       </Text>
                     </Pressable>
                     <Pressable  style={[styles.filterButton, {backgroundColor: filterStatus === true ? Colors.dark:"black"}]} onPress={() => setFilterStatus(true)}>
-                      <Text>
+                      <Text style={{color: "white"}}>
                         Complete
                       </Text>
                     </Pressable>
                     <Pressable  style={[styles.filterButton, {backgroundColor: filterStatus === false ? Colors.dark:"black"}]} onPress={() => setFilterStatus(false)}>
-                      <Text>
+                      <Text style={{color: "white"}}>
                         Uncomplete
                       </Text>
                     </Pressable>
@@ -313,9 +318,6 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderColor: "white",
     borderRadius: 5
-  },
-  filterText:{
-
   }
 });
 

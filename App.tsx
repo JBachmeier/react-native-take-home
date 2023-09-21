@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -18,6 +18,7 @@ import {
 import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
+
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -54,10 +55,11 @@ type ToDoViewProps = {
 }
 
 const ToDoView = ({ todo }: ToDoViewProps) => {
+  
   return (
     <View style={{padding: 5, borderRadius: 5, backgroundColor: "white", shadowOpacity: 0.3, shadowColor: "black", shadowRadius: 10, width: "100%"}}>
-      <Text>{todo.title}</Text>
-      <Text style={{fontStyle: "italic"}}>by User {todo.userId}</Text>
+      <Text style={{color: "black"}}>{todo.title}</Text>
+      <Text style={{color: "black",fontStyle: "italic"}}>by User {userIdMap[todo.userId]}</Text>
     </View>
   );
 }
@@ -68,6 +70,62 @@ type ToDo = {
   title: String;
   completed: Boolean
 }
+
+/*type User = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  address: {
+    street: string;
+    suite: string;
+    city: string;
+    zipcode: string;
+    geo: {
+      lat: string;
+      lng: string;
+    };
+  };
+  phone: string;
+  website: string;
+  company: {
+    name: string;
+    catchPhrase: string;
+    bs: string;
+  };
+}*/
+
+// Zunächst wollte ich des gesamten User speichern, da aber eigentlich nur die Id und der Username benötigt wird, spare ich mir hier ein wenig platz
+type UserTest = {
+  id: number;
+  username: string;
+}
+
+const userIdMap: Record<number,string> = {};
+
+const Users = () =>{
+  const { error, data } = useQuery({
+    queryKey: ['users'],
+    queryFn: (): Promise<UserTest[]> =>
+      fetch('https://jsonplaceholder.typicode.com/users').then(
+        (res) => res.json(),
+      ),
+  })
+  if (error) return <Text>An error has occurred ${error.message}</Text>
+
+  if (!data) return <Text>Data was undefined :(</Text>
+
+  data.forEach(user => {
+    userIdMap[user.id] = user.username
+  });
+
+  console.log(userIdMap)
+
+  return(
+    <Text></Text>
+  );
+}
+
 
 const ToDos = () => {
   const { isLoading, error, data } = useQuery({
@@ -90,6 +148,7 @@ const ToDos = () => {
     </View>
   );
 }
+
 
 const queryClient = new QueryClient()
 
@@ -116,6 +175,7 @@ function App(): JSX.Element {
             }}>
             <Section title="ToDos">
               <ToDos />
+              <Users />
             </Section>
           </View>
         </ScrollView>

@@ -10,9 +10,10 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-community/cli-doctor": "^11.3.8",
     "@tanstack/react-query": "^4.32.0",
     "react": "18.2.0",
-    "react-native": "0.72.3"
+    "react-native": "^0.72.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

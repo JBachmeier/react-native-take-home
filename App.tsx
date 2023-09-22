@@ -60,10 +60,10 @@ type ToDoViewProps = {
 }
 const ToDoView = ({ todo }: ToDoViewProps) => {
   
-
+  // nach langem testen und recherchieren habe ich keine lösung gefunden, um den Text in der Bildschirm-breite zu halten, ausser den Text per maxWidth zu beschränken, was aber bad practice ist.
   return (
-    <View style={{padding: 5, borderRadius: 5, backgroundColor: "white", shadowOpacity: 0.3, shadowColor: "black", shadowRadius: 20, flex: 1, flexDirection: "column", elevation:5}}>
-      <Text style={{color: "black", fontWeight: "600"}}>{todo.title}</Text>
+    <View style={{padding: 5, borderRadius: 5, backgroundColor: "white", shadowOpacity: 0.3, shadowColor: "black", shadowRadius: 20, elevation:5, width: "100%"}}>
+      <Text style={{color: "black", fontWeight: "600", maxWidth: 300}}>{todo.title}</Text>
       <View style={{flexDirection: "row", justifyContent:"space-between", paddingTop: 5}}>
         <View style={{flexDirection: "row", alignItems:"center"}}>
           <Icon style={{color: "black", paddingEnd: 5}} name="user"/>
@@ -86,29 +86,6 @@ type ToDo = {
   completed: Boolean
 }
 
-/*type User = {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  address: {
-    street: string;
-    suite: string;
-    city: string;
-    zipcode: string;
-    geo: {
-      lat: string;
-      lng: string;
-    };
-  };
-  phone: string;
-  website: string;
-  company: {
-    name: string;
-    catchPhrase: string;
-    bs: string;
-  };
-}*/
 
 // Zunächst wollte ich des gesamten User speichern, da aber eigentlich nur die Id und der Username benötigt wird, spare ich mir hier ein wenig platz
 type UserTest = {
@@ -137,11 +114,11 @@ const Users = () =>{
  
 
   return(
-    <View/>
+    null
   );
 }
 
-const ToDos = (props) => {
+const ToDos = (props: { filter: Boolean | null; }) => {
   const { isLoading, error, data } = useQuery({
     queryKey: ['todos'],
     queryFn: (): Promise<ToDo[]> =>
@@ -155,8 +132,6 @@ const ToDos = (props) => {
   if (error) return <Text>An error has occurred ${error.message}</Text>
 
   if (!data) return <Text>Data was undefined :(</Text>
-
-  console.log(props.filter)
 
   const filteredData = props.filter === null
     ? data
@@ -183,14 +158,6 @@ function App(): JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  /*const statusFilter = [{
-    value: "All",
-  },{
-    value: "Complete",
-  },{
-    value: "Uncomplete"
-  }]*/
-
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaView style={backgroundStyle}>
@@ -207,33 +174,6 @@ function App(): JSX.Element {
             }}>
             <Section title="ToDos">
               <View style={{flexDirection:"column"}}>
-              {/*<Icon.Button name="filter" style={{backgroundColor: isDarkMode ? Colors.light : Colors.black}} color={isDarkMode ? Colors.black : Colors.white} onPress={() => {
-                    setFilterVisibility(!filterVisibility)
-                    console.log(filterVisibility)
-                  }}>
-                    Filter
-                  </Icon.Button>
-                  <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={filterVisibility}
-                    onRequestClose={() => {
-                      setFilterVisibility(!filterVisibility);
-                    }}
-                  >
-                    <View style={styles.centeredView}>
-                      <View style={styles.modalView}>
-                        <Text style={{color: "black"}}>Filter</Text>
-                        <View style={{flexDirection: "row"}}>
-                          <Text style={{color: "black"}}>Completion status</Text>
-                          <Dropdown value={} items={statusFilter}/>
-                        </View>
-                        <Pressable onPress={() => setFilterVisibility(!filterVisibility)}>
-                          <Text style={{color: "black"}}>Close</Text>
-                        </Pressable>
-                      </View>
-                    </View>
-                  </Modal>*/}
                 <View style={{flexDirection: "row", paddingBottom:10}}>
                   <Pressable style={{backgroundColor: isDarkMode ? Colors.light : Colors.black, borderRadius: 10}} onPress={() => {
                     setFilterVisibility(!filterVisibility)
@@ -290,23 +230,6 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "black",
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
   },
   filterButton: {
     padding: 5,
